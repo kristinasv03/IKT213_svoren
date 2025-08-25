@@ -1,72 +1,46 @@
-# iv_v_windows.py
 import cv2
 import numpy as np
 from pathlib import Path
 
 def print_image_information(image: np.ndarray) -> None:
-    """
-    Prints height, width, channels, size (# of values), and dtype of an image.
-    """
     if image is None:
-        print("Error: image is None. Check the path/filename.")
+        print("Error: image is None.")
         return
-
     if image.ndim == 2:
-        height, width = image.shape
-        channels = 1
+        h, w = image.shape; c = 1
     elif image.ndim == 3:
-        height, width, channels = image.shape
+        h, w, c = image.shape
     else:
-        print(f"Unexpected image ndim: {image.ndim}")
         return
-
-    size = image.size
-    dtype = image.dtype
-
     print("Image Information")
-    print(f"height:   {height}")
-    print(f"width:    {width}")
-    print(f"channels: {channels}")
-    print(f"size:     {size}")
-    print(f"dtype:    {dtype}")
+    print(f"height: {h}")
+    print(f"width: {w}")
+    print(f"channels: {c}")
+    print(f"size: {image.size}")
+    print(f"dtype: {image.dtype}")
 
-def main():
-    base = Path(__file__).parent
-
-    # --- IV: check lena.png (make sure filename matches yours!) ---
-    img_path = base / "lena-1.png"   # change to "lena-1.png" if that's your actual file
-    image = cv2.imread(str(img_path), cv2.IMREAD_UNCHANGED)
-    print_image_information(image)
-
-    # --- V: camera info saved to solutions/camera_outputs.txt ---
-    out_txt = base / "solutions" / "camera_outputs.txt"
-    out_txt.parent.mkdir(parents=True, exist_ok=True)
-
-    # Open camera with Windows backend (try MSMF first, fallback to DSHOW)
+def save_camera_info(out_txt: Path) -> None:
     cam = cv2.VideoCapture(0, cv2.CAP_MSMF)
     if not cam.isOpened():
         cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-    if not cam.isOpened():
-        # Could not open camera → write placeholders
-        with open(out_txt, "w", encoding="utf-8") as f:
-            f.write("fps: 0\nheight: 0\nwidth: 0\n")
-        return
-
-    # Warm-up read (helps some drivers report FPS/size correctly)
-    _ = cam.read()
-
+    _ = cam.read()  # warm-up
     fps = cam.get(cv2.CAP_PROP_FPS) or 0
-    frame_width = int(cam.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
-    frame_height = int(cam.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
-
+    width = int(cam.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
+    height = int(cam.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
     cam.release()
-
-    # Save results only to file
-    with open(out_txt, "w", encoding="utf-8") as f:
+    with open(out_txt, "w") as f:
         f.write(f"fps: {int(fps) if fps == int(fps) else fps}\n")
-        f.write(f"height: {frame_height}\n")
-        f.write(f"width: {frame_width}\n")
+        f.write(f"height: {height}\n")
+        f.write(f"width: {width}\n")
+
+def main():
+    base = Path(__file__).parent
+    # IV
+    img = cv2.imread(str(base / "lena-1.png"), cv2.IMREAD_UNCHANGED)
+    print_image_information(img)
+    # V
+    save_camera_info(base / "solutions" / "camera_outputs.txt")
 
 if __name__ == "__main__":
     main()
