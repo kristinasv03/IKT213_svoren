@@ -22,9 +22,10 @@ def template_match(shapes, template):
     match = cv2.matchTemplate(shapes_gray, template_gray, cv2.TM_CCOEFF_NORMED)
     threshold = 0.9
     loc = np.where(match >= threshold)
+    result = shapes.copy()
     for pt in zip(*loc[::-1]):
-        cv2.rectangle(shapes_gray, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
-    return shapes_gray
+        cv2.rectangle(result, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
+    return result
 
 def resize(image, scale_factor: int , up_or_down: str):
     result_image = image.copy()
