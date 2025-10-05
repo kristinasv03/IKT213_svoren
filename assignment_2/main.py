@@ -33,9 +33,9 @@ def hsv (image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
 def hue_shifted(image, emptyPictureArray, hue):
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    hsv_image[..., 0] = (hsv_image[..., 0] + hue) % 180
-    emptyPictureArray[0:h, 0:w] = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+    emptyPictureArray[0:h, 0:w, 0] = image[..., 1]
+    emptyPictureArray[0:h, 0:w, 1] = image[..., 2]
+    emptyPictureArray[0:h, 0:w, 2] = image[..., 0]
     return emptyPictureArray
 
 def smoothing(image):
