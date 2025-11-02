@@ -50,14 +50,7 @@ def SIFT(image_to_align, reference_image, max_features, good_match_precent):
     if len(limited_matches) < MIN_MATCH_COUNT:
         print(f"Not enough matches are found - {len(limited_matches)}/{MIN_MATCH_COUNT}")
 
-        matches_img = cv2.drawMatches(
-            reference_image, kp_ref,
-            image_to_align, kp_aln,
-            limited_matches,
-            None,
-            flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
-        )
-
+        matches_img = cv2.drawMatches(reference_image, kp_ref, image_to_align, kp_aln, limited_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
         return None, matches_img
 
     src_pts = np.float32([kp_ref[m.queryIdx].pt for m in limited_matches]).reshape(-1, 1, 2)
@@ -67,42 +60,20 @@ def SIFT(image_to_align, reference_image, max_features, good_match_precent):
 
     if H is None:
         print("Homography failed.")
-        matches_img = cv2.drawMatches(
-            reference_image, kp_ref,
-            image_to_align, kp_aln,
-            limited_matches,
-            None,
-            flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
-        )
+        matches_img = cv2.drawMatches(reference_image, kp_ref, image_to_align, kp_aln, limited_matches, None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
         return None, matches_img
 
     H_inv = np.linalg.inv(H)
 
     h_ref, w_ref = gray_ref.shape[:2]
 
-    aligned = cv2.warpPerspective(
-        image_to_align,
-        H_inv,
-        (w_ref, h_ref),
-        flags=cv2.INTER_LINEAR
-    )
+    aligned = cv2.warpPerspective(image_to_align, H_inv, (w_ref, h_ref), flags=cv2.INTER_LINEAR)
 
     matchesMask = mask.ravel().tolist()
 
-    draw_params = dict(
-        matchColor=(0, 255, 0),
-        singlePointColor=None,
-        matchesMask=matchesMask,
-        flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
-    )
+    draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matchesMask, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
 
-    img_matches = cv2.drawMatches(
-        reference_image, kp_ref,
-        image_to_align, kp_aln,
-        limited_matches,
-        None,
-        **draw_params
-    )
+    img_matches = cv2.drawMatches(reference_image, kp_ref, image_to_align, kp_aln, limited_matches, None, **draw_params)
 
     return aligned, img_matches
 
